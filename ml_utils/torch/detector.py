@@ -1,10 +1,7 @@
 """detector object for running on single images"""
 
 from torchvision import transforms
-import numpy as np
 import torch
-
-from .. import bbox_utils
 
 
 class TorchDetector:
@@ -13,16 +10,14 @@ class TorchDetector:
     Args:
         model (nn.Module):
         decoder (Decoder):
+        pred_filter (PredictionFilter): used to filter model outputs.
         input_dim (int): image resized to (input_dim, input_dim) before being
             fed to model.
-        max_outputs (int):
-        nms_iou_thresh (float):
 
     Attributes:
         model (nn.Module): see Args.
         decoder (Decoder): see Args.
-        max_outputs (int): see Args.
-        nms_iou_thresh (float): see Args.
+        pred_filter (PredictionFilter): see Args.
         img_to_x (Transform): resizes image and converts it from
             PIL.Image -> Tensor.
         softmax (nn.Module): model outputs are not softmaxed
@@ -31,12 +26,15 @@ class TorchDetector:
             postprocessing step
     """
     def __init__(
-            self, model, decoder, input_dim, max_outputs, nms_iou_thresh
+            self,
+            model,
+            decoder,
+            input_dim,
+            pred_filter=None
     ):
         self.model = model
         self.decoder = decoder
-        self.max_outputs = max_outputs
-        self.nms_iou_thresh = nms_iou_thresh
+        self.pred_filter = pred_filter
 
         self.img_to_x = transforms.Compose([
             transforms.Resize((input_dim, input_dim)),
@@ -67,17 +65,9 @@ class TorchDetector:
         ### decode model outputs
         confs, classes, boxes = self.decoder(c_hat, b_hat)
 
-        ### truncating outputs
-        conf_inds = np.argsort(confs)[-self.max_outputs:]
-        confs = confs[conf_inds]
-        classes = classes[conf_inds]
-        boxes = boxes[conf_inds, :]
-
-        ### non-max suppression
-        nms_mask = bbox_utils.get_nms_mask(confs, boxes)
-        confs = confs[nms_mask]
-        classes = classes[nms_mask]
-        boxes = boxes[nms_mask, :]
+        ### filter predictions
+        if self.pred_filter is not None:
+            confs, classes, boxes = self.pred_filter(confs, classes, boxes)
 
         return confs, classes, boxes
 
