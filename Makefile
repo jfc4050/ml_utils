@@ -17,7 +17,10 @@ INCLUDES=$(addprefix -I${CONDA_PREFIX},\
 	/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include\
 )
 
-all: $(PKG)/bbox_utils.so
+all: $(addprefix $(PKG)/, bbox_utils.so prediction_filtering.so)
 
 $(PKG)/bbox_utils.so: $(SRC)/bbox_utils.cpp
 	$(CPP) $(CPP_FLAGS) $(INCLUDES) $< -o $@
+
+$(PKG)/prediction_filtering.so: $(SRC)/prediction_filtering.cpp $(PKG)/bbox_utils.so
+	$(CPP) $(CPP_FLAGS) $(INCLUDES) $^ -o $@
