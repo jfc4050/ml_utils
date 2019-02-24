@@ -32,7 +32,7 @@ class MakeFileBuild(build_ext):
 
 setup(
     name='ml_utils',
-    version='0.1',
+    version='0.2',
     author='justin chiu',
     description='machine learning utilities',
     url='https://github.com/jfc4050/ml_utils',
