@@ -53,7 +53,7 @@ FloatTensor2D computeIOUs(
     ); // (|rowBoxes|, |colBoxes|, 2)
     const FloatTensor3D abInterBR = xt::minimum(
         xt::view(rowBoxesIjij, xt::all(), xt::newaxis(), xt::range(2, 4)),
-        xt::view(rowBoxesIjij, xt::all(), xt::range(2, 4))
+        xt::view(colBoxesIjij, xt::all(), xt::range(2, 4))
     ); // (|rowBoxes|, |colBoxes|, 2)
     // compute H, W of each intersection(a, b)
     const FloatTensor3D abInterHW = xt::maximum(abInterBR - abInterTL, 0);

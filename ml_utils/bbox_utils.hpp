@@ -1,5 +1,4 @@
 #include "xtensor-python/pytensor.hpp"
-#include "xtensor-python/pyarray.hpp"
 
 typedef xt::pytensor<bool, 1> BoolTensor1D;
 typedef xt::pytensor<int, 1> IntTensor1D;
