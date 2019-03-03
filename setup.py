@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from setuptools import setup, Extension
+from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 
 
@@ -38,6 +38,6 @@ setup(
     url='https://github.com/jfc4050/ml_utils',
     ext_modules=[CppExtension('ml_utils/ml_utils')],
     cmdclass={'build_ext': MakeFileBuild},
-    packages=['ml_utils'],
+    packages=find_packages(),
     zip_safe=False
 )

@@ -7,7 +7,7 @@ import numpy as np
 from torchvision import transforms
 import PIL
 
-import bbox_utils
+from .. import bbox_utils
 
 
 class AugmentationLayer(abc.ABC):
