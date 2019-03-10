@@ -2,16 +2,16 @@
 
 from xml.etree import ElementTree
 from os import PathLike
-from typing import NamedTuple, Tuple
+from typing import Optional, NamedTuple, Tuple
 
 import numpy as np
 
 
 class PascalObjectLabel(NamedTuple):
     """pascal label for a single object"""
-    track_id: int
     class_id: str
-    bbox: Tuple[float]
+    bbox: Tuple[float, float, float, float]
+    track_id: Optional[int] = None
 
 
 def parse_pascal_xmlfile(
@@ -37,7 +37,10 @@ def parse_pascal_xmlfile(
     ### iterate through object labels
     pascal_objects = list()
     for obj in root.findall('object'):
-        track_id = int(obj.find('trackid').text)
+        if obj.find('trackid') is not None:
+            track_id = int(obj.find('trackid').text)
+        else:
+            track_id = None
         class_id = obj.find('name').text
         bbox = obj.find('bndbox')
         ijij = np.array([  # ijij, absolute coordinates
@@ -51,6 +54,10 @@ def parse_pascal_xmlfile(
         ijhw /= [im_h, im_w, im_h, im_w]  # ijhw, fractional coordinates
         bbox = tuple(ijhw)
 
-        pascal_objects.append(PascalObjectLabel(track_id, class_id, bbox))
+        pascal_objects.append(PascalObjectLabel(
+            class_id=class_id,
+            bbox=bbox,
+            track_id=track_id
+        ))
 
     return tuple(pascal_objects)
