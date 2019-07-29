@@ -10,12 +10,12 @@ from .bbox_utils import ijhw_to_ijij
 
 
 def draw_detections(
-        img: Image,
-        confs: np.ndarray,
-        classes: np.ndarray,
-        boxes: np.ndarray,
-        mappings: Dict[int, str] = None,
-        cmap_key: str = 'cubehelix'
+    img: Image,
+    confs: np.ndarray,
+    classes: np.ndarray,
+    boxes: np.ndarray,
+    mappings: Dict[int, str] = None,
+    cmap_key: str = "cubehelix",
 ) -> None:
     """draw detections on image.
 
@@ -38,11 +38,9 @@ def draw_detections(
     cmap = plt.get_cmap(cmap_key)
     draw = ImageDraw.Draw(img)
     for conf, cls_id, (i0, j0, i1, j1) in zip(confs, classes, boxes_ijij):
-        color = tuple([int(255*x) for x in cmap(cls_id/max(classes))[:3]])
+        color = tuple([int(255 * x) for x in cmap(cls_id / max(classes))[:3]])
 
         draw.rectangle([(j0, i0), (j1, i1)], outline=color)
         draw.text(
-            (j0, i0),
-            f'{mappings.get(cls_id, str(cls_id))}-{conf:.2f}',
-            fill=color
+            (j0, i0), f"{mappings.get(cls_id, str(cls_id))}-{conf:.2f}", fill=color
         )

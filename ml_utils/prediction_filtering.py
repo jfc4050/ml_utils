@@ -9,6 +9,7 @@ from . import bbox_utils
 
 class PredictionFilter(abc.ABC):
     """used to filter confidences, classes, and boxes."""
+
     @abc.abstractmethod
     def __call__(self, confs, classes, bboxes):
         """filter confs, classes, and boxes.
@@ -41,6 +42,7 @@ class PredictionFilterPipeline(PredictionFilter):
     Attributes:
         filter_layers ([PredictionFilter]): see Args.
     """
+
     def __init__(self, *filter_layers):
         self.filter_layers = filter_layers
 
@@ -60,6 +62,7 @@ class ConfidenceFilter(PredictionFilter):
     Attributes:
         conf_thresh (float): see Args.
     """
+
     def __init__(self, conf_thresh):
         self.conf_thresh = conf_thresh
 
@@ -79,14 +82,15 @@ class NMSFilter(PredictionFilter):
     Attributes:
         iou_thresh (float): see Args.
     """
+
     def __init__(self, iou_thresh):
         self.iou_thresh = iou_thresh
 
     def __call__(self, confs, classes, bboxes):
         """see superclass."""
-        filtered_confs = [np.empty(0, dtype='float32')]
-        filtered_classes = [np.empty(0, dtype='int32')]
-        filtered_bboxes = [np.empty((0, 4), dtype='float32')]
+        filtered_confs = [np.empty(0, dtype="float32")]
+        filtered_classes = [np.empty(0, dtype="int32")]
+        filtered_bboxes = [np.empty((0, 4), dtype="float32")]
 
         for class_id in np.unique(classes):
             ### all predictions of class class_id
@@ -100,9 +104,7 @@ class NMSFilter(PredictionFilter):
             )
 
             filtered_confs.append(class_confs)
-            filtered_classes.append(
-                np.ones(len(class_confs), dtype='int32') * class_id
-            )
+            filtered_classes.append(np.ones(len(class_confs), dtype="int32") * class_id)
             filtered_bboxes.append(class_boxes)
 
         confs = np.concatenate(filtered_confs)

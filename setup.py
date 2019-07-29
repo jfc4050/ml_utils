@@ -21,23 +21,25 @@ class MakeFileBuild(build_ext):
     def build_extension(self, ext):
         output_dir = Path(self.get_ext_fullpath(ext.name)).parent.resolve()
 
-        subprocess.check_call([
-            'make',
-            '-e',
-            f'OSX={int(sys.platform == "darwin")}',
-            f'PYTHON_VERSION={".".join(str(x) for x in sys.version_info[:2])}',
-            f'PKG={str(output_dir)}'
-        ])
+        subprocess.check_call(
+            [
+                "make",
+                "-e",
+                f'OSX={int(sys.platform == "darwin")}',
+                f'PYTHON_VERSION={".".join(str(x) for x in sys.version_info[:2])}',
+                f"PKG={str(output_dir)}",
+            ]
+        )
 
 
 setup(
-    name='ml_utils',
-    version='0.2',
-    author='justin chiu',
-    description='machine learning utilities',
-    url='https://github.com/jfc4050/ml_utils',
-    ext_modules=[CppExtension('ml_utils/ml_utils')],
-    cmdclass={'build_ext': MakeFileBuild},
+    name="ml_utils",
+    version="0.2",
+    author="justin chiu",
+    description="machine learning utilities",
+    url="https://github.com/jfc4050/ml_utils",
+    ext_modules=[CppExtension("ml_utils/ml_utils")],
+    cmdclass={"build_ext": MakeFileBuild},
     packages=find_packages(),
-    zip_safe=False
+    zip_safe=False,
 )

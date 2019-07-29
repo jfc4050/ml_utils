@@ -12,6 +12,7 @@ from .. import bbox_utils
 
 class AugmentationLayer(abc.ABC):
     """performs random transformation of image and bboxes."""
+
     @abc.abstractmethod
     def __call__(self, img, bboxes):
         """perform augmentation on image and adjust bboxes accordingly.
@@ -37,6 +38,7 @@ class AugmentationPipeline(AugmentationLayer):
     Attributes:
         aug_layers ([AugmentationLayer]): see Args.
     """
+
     def __init__(self, *aug_layers):
         self.aug_layers = aug_layers
 
@@ -59,10 +61,9 @@ class Jitter(AugmentationLayer):
     Attributes:
         jitter (Transform): unwrapped transformation layer.
     """
-    def __init__(self, brightness=0.5, contrast=0.5, saturation=2., hue=0.05):
-        self.jitter = transforms.ColorJitter(
-            brightness, contrast, saturation, hue
-        )
+
+    def __init__(self, brightness=0.5, contrast=0.5, saturation=2.0, hue=0.05):
+        self.jitter = transforms.ColorJitter(brightness, contrast, saturation, hue)
 
     def __call__(self, img, bboxes):
         """see superclass."""
@@ -79,6 +80,7 @@ class GrayScale(AugmentationLayer):
     Attributes:
         gs (Transform): unwrapped transformation layer.
     """
+
     def __init__(self, p=0.2):
         self.gs = transforms.RandomGrayscale(p)
 
@@ -97,6 +99,7 @@ class RandHFlip(AugmentationLayer):
     Attributes:
         p (float): see Args.
     """
+
     def __init__(self, p=0.5):
         self.p = p
 
@@ -112,6 +115,7 @@ class RandHFlip(AugmentationLayer):
 
 class RandCrop(AugmentationLayer):
     """take a random crop out of image without cropping out any positives."""
+
     def __call__(self, img, bboxes):
         """see superclass."""
         ### randomly select crop points (fractional coords)
@@ -124,7 +128,7 @@ class RandCrop(AugmentationLayer):
 
         ### convert crop points to absolute coordinates
         full_w, full_h = img.size
-        crop_ijij_abs = (crop_ijij*[full_h, full_w, full_h, full_w]).astype(int)
+        crop_ijij_abs = (crop_ijij * [full_h, full_w, full_h, full_w]).astype(int)
         crop_i0_abs, crop_j0_abs, crop_i1_abs, crop_j1_abs = crop_ijij_abs
 
         ### crop image
