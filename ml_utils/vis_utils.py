@@ -1,4 +1,4 @@
-"""visualization utilities"""
+"""visualization utilities."""
 
 from typing import Dict
 
@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 import matplotlib.pyplot as plt
 
-from .bbox_utils import ijhw_to_ijij
+from .boundingboxes import ijhw_to_ijij
 
 
 def draw_detections(

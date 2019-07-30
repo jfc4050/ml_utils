@@ -1,5 +1,5 @@
 #define FORCE_IMPORT_ARRAY  // required before any includes from xtensor-python
-#include "bbox_utils.hpp"
+#include "boundingboxes.hpp"
 
 #include <unordered_set>
 #include <vector>
@@ -108,7 +108,7 @@ BoolTensor1D getNMSMask(
 }
 
 
-PYBIND11_MODULE(bbox_utils, m)
+PYBIND11_MODULE(boundingboxes, m)
 {
     xt::import_numpy();
     m.doc() = "bounding box utilities, implemented in C++";
@@ -117,11 +117,11 @@ PYBIND11_MODULE(bbox_utils, m)
         "convert ijhw bounding boxes to ijij.\n"
         "\n"
         "Args:\n"
-        "   bboxes (ndarray): (|bboxes|, 4); bounding boxes to convert. "
+        "   bboxes (ndarray): (|B|, 4); bounding boxes to convert. "
         "must be in ijhw format, and have fractional values (in [0, 1])\n"
         "\nm"
         "Returns:\n"
-        "   ndarray: (|bboxes|, 4); converted ijij bboxes, with values clipped "
+        "   ndarray: (|B|, 4); converted ijij bboxes, with values clipped "
         "to fall in [0, 1]\n"
     );
     m.def(
@@ -130,11 +130,11 @@ PYBIND11_MODULE(bbox_utils, m)
         "rowBoxes, colBoxes.\n"
         "\n"
         "Args:\n"
-        "   colBoxes (ndarray): (|colBoxes|, 4); first set of bounding boxes\n"
-        "   rowBoxes (ndarray): (|rowBoxes|, 4); second set of bounding boxes\n"
+        "   colBoxes (ndarray): (|A|, 4); first set of bounding boxes\n"
+        "   rowBoxes (ndarray): (|B|, 4); second set of bounding boxes\n"
         "\n"
         "Returns:\n"
-        "   ndarray: (|colBoxes|, |rowBoxes|); ious[a, b] = IoU(a, b)\n"
+        "   ndarray: (|A|, |B|); ious[a, b] = IoU(a, b)\n"
     );
     m.def(
         "get_nms_mask", &getNMSMask,
@@ -142,12 +142,12 @@ PYBIND11_MODULE(bbox_utils, m)
         "highest confidence bbox.\n"
         "\n"
         "Args:\n"
-        "   confs (ndarray): (N,); confidence for each box prediction.\n"
-        "   bboxes (ndarray): (N, 4); unsuppressed box predictions.\n"
+        "   confs (ndarray): (|B|,); confidence for each box prediction.\n"
+        "   bboxes (ndarray): (|B|, 4); unsuppressed box predictions.\n"
         "   iou_thresh (float): minimum iou between two boxes to be considered "
         "an overlap.\n"
         "\n"
         "Returns:\n"
-        "   ndarray: (N,): true where prediction should be kept.\n"
+        "   ndarray: (|B|,): true where prediction should be kept.\n"
     );
 }

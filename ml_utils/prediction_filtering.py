@@ -4,7 +4,7 @@ import abc
 
 import numpy as np
 
-from . import bbox_utils
+from .boundingboxes import get_nms_mask
 
 
 class PredictionFilter(abc.ABC):
@@ -98,7 +98,7 @@ class NMSFilter(PredictionFilter):
             class_confs, class_boxes = self._apply_mask(cls_mask, confs, bboxes)
 
             ### perform classwise nms
-            nms_mask = bbox_utils.get_nms_mask(class_confs, class_boxes)
+            nms_mask = get_nms_mask(class_confs, class_boxes)
             class_confs, class_boxes = self._apply_mask(
                 nms_mask, class_confs, class_boxes
             )

@@ -17,7 +17,7 @@ INCLUDES=$(addprefix -I${CONDA_PREFIX},\
 	/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include\
 )
 
-all: $(PKG)/bbox_utils.so
+all: $(PKG)/boundingboxes.so
 
-$(PKG)/bbox_utils.so: $(SRC)/bbox_utils.cpp
+$(PKG)/boundingboxes.so: $(SRC)/boundingboxes.cpp
 	$(CPP) $(CPP_FLAGS) $(INCLUDES) $< -o $@

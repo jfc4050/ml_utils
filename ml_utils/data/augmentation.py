@@ -7,7 +7,7 @@ import numpy as np
 from torchvision import transforms
 import PIL
 
-from .. import bbox_utils
+from ..boundingboxes import ijhw_to_ijij
 
 
 class AugmentationLayer(abc.ABC):
@@ -119,7 +119,7 @@ class RandCrop(AugmentationLayer):
     def __call__(self, img, bboxes):
         """see superclass."""
         ### randomly select crop points (fractional coords)
-        bboxes_ijij = bbox_utils.ijhw_to_ijij(bboxes)
+        bboxes_ijij = ijhw_to_ijij(bboxes)
         crop_i0 = np.random.uniform(0, min(bboxes_ijij[:, 0]))
         crop_j0 = np.random.uniform(0, min(bboxes_ijij[:, 1]))
         crop_i1 = np.random.uniform(max(bboxes_ijij[:, 2]), 1)
