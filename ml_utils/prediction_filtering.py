@@ -1,6 +1,7 @@
 """prediction filter objects"""
 
 import abc
+from typing import Tuple
 
 import numpy as np
 
@@ -70,6 +71,25 @@ class ConfidenceFilter(PredictionFilter):
         """see superclass."""
         conf_mask = confs > self.conf_thresh
         return self._apply_mask(conf_mask, confs, classes, bboxes)
+
+
+class MaxDetFilter(PredictionFilter):
+    """throws out all but top `max_dets` detections."""
+
+    def __init__(self, max_dets: int) -> None:
+        self.max_dets = max_dets
+
+    def __call__(
+        self, confs: np.ndarray, classes: np.ndarray, bboxes: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        keep_inds = np.argsort(-confs)
+        keep_inds = keep_inds[: self.max_dets]
+
+        confs = confs[keep_inds]
+        classes = classes[keep_inds]
+        bboxes = bboxes[keep_inds, :]
+
+        return confs, classes, bboxes
 
 
 class NMSFilter(PredictionFilter):
