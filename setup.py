@@ -8,29 +8,42 @@ from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 
 
-class CppExtension(Extension):
-    def __init__(self, name):
-        super().__init__(name, sources=[])
+class CMakeExtension(Extension):
+    def __init__(self, name: str, sourcedir: str = "") -> None:
+        Extension.__init__(self, name, sources=[])
+        self.sourcedir = str(Path(sourcedir).resolve())
 
 
-class MakeFileBuild(build_ext):
-    def run(self):
+class CMakeBuild(build_ext):
+    def run(self) -> None:
+        try:
+            subprocess.check_output(["cmake", "--version"])
+        except OSError:
+            raise RuntimeError("CMake not installed")
+
         for ext in self.extensions:
             self.build_extension(ext)
 
-    def build_extension(self, ext):
-        output_dir = Path(self.get_ext_fullpath(ext.name)).parent.resolve()
+    def build_extension(self, ext: "CMakeBuild") -> None:
+        extdir = str(Path(self.get_ext_fullpath(ext.name)).parent.resolve())
+        cfg = "Debug" if self.debug else "Release"
 
-        subprocess.check_call(
-            [
-                "make",
-                "-e",
-                f'OSX={int(sys.platform == "darwin")}',
-                f'PYTHON_VERSION={".".join(str(x) for x in sys.version_info[:2])}',
-                f"PKG={str(output_dir)}",
-            ]
-        )
+        cmake_command = [
+            "cmake",
+            ext.sourcedir,
+            f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}",
+            f"-DPYTHON_EXECUTABLE={sys.executable}",
+            f"-DCMAKE_BUILD_TYPE={cfg}",
+        ]
+        build_command = ["cmake", "--build", ".", "--config", cfg, "--", "-j2"]
 
+        Path(self.build_temp).mkdir(exist_ok=True, parents=True)
+        for cmd in [cmake_command, build_command]:
+            subprocess.check_call(cmd, cwd=self.build_temp)
+
+
+with open("requirements.txt") as req:
+    requirements = req.readlines()
 
 setup(
     name="ml_utils",
@@ -38,8 +51,9 @@ setup(
     author="justin chiu",
     description="machine learning utilities",
     url="https://github.com/jfc4050/ml_utils",
-    ext_modules=[CppExtension("ml_utils/ml_utils")],
-    cmdclass={"build_ext": MakeFileBuild},
-    packages=find_packages(),
+    ext_modules=[CMakeExtension("ml_utils/ml_utils")],
+    cmdclass={"build_ext": CMakeBuild},
+    packages=find_packages(exclude=("tests",)),
+    install_requires=requirements,
     zip_safe=False,
 )
