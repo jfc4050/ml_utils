@@ -1,6 +1,8 @@
 # ml_utilities
 
-```
-conda install -c conda-forge xtensor-python pybind11
+```bash
+conda install -c conda-forge xtensor-python
 python setup.py install
+cd tests
+python -m pytest .
 ```
