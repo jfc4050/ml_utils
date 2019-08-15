@@ -1,46 +1,28 @@
 """visualization utilities."""
 
-from typing import Dict
+from typing import Sequence
 
 import numpy as np
 from PIL import Image, ImageDraw
-import matplotlib.pyplot as plt
 
 from .boundingboxes import ijhw_to_ijij
 
 
 def draw_detections(
-    img: Image,
-    confs: np.ndarray,
-    classes: np.ndarray,
-    boxes: np.ndarray,
-    mappings: Dict[int, str] = None,
-    cmap_key: str = "cubehelix",
+    img: Image, bboxes: np.ndarray, labels: Sequence[str] = None
 ) -> None:
     """draw detections on image.
 
     Args:
-        img (Image): PIL image to draw on.
-        confs (ndarray): (|D|,) prediction confidences.
-        classes (ndarray): (|D|,) class IDs.
-        boxes (ndarray): (|D|, 4) bounding boxes.
-        mappings (dict): class id (int) -> class name (str).
-        cmap_key (str): string key for matplotlib colormap.
+        img: PIL image to draw on.
+        bboxes: (|D|, 4) bounding boxes.
+        labels: text label for each bounding box.
     """
-    # conversion: ijhw, fractional -> ijij, absolute
     im_w, im_h = img.size
-    boxes_ijij = ijhw_to_ijij(boxes) * [im_h, im_w, im_h, im_w]
+    boxes_ijij = ijhw_to_ijij(bboxes) * [im_h, im_w, im_h, im_w]
+    labels = labels or [""] * len(bboxes)
 
-    mappings = mappings or dict()
-    confs = confs if confs is not None else np.ones(len(classes), dtype=float)
-
-    ### draw detections
-    cmap = plt.get_cmap(cmap_key)
     draw = ImageDraw.Draw(img)
-    for conf, cls_id, (i0, j0, i1, j1) in zip(confs, classes, boxes_ijij):
-        color = tuple([int(255 * x) for x in cmap(cls_id / max(classes))[:3]])
-
-        draw.rectangle([(j0, i0), (j1, i1)], outline=color)
-        draw.text(
-            (j0, i0), f"{mappings.get(cls_id, str(cls_id))}-{conf:.2f}", fill=color
-        )
+    for label, (i0, j0, i1, j1) in zip(labels, boxes_ijij):
+        draw.rectangle([(j0, i0), (j1, i1)])
+        draw.text((j0, i0), label)

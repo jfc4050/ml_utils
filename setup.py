@@ -47,7 +47,7 @@ with open("requirements.txt") as req:
 
 setup(
     name="ml_utils",
-    version="2.2.0",
+    version="3.0.0",
     author="justin chiu",
     description="machine learning utilities",
     url="https://github.com/jfc4050/ml_utils",
